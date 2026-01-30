@@ -1,5 +1,21 @@
 import java.util.Scanner;
 public class HazardAnalyzer {
+    public static double HazardRiskCalculator(double armPrecision, double workerDensity, String machineryState){
+        double machineryStatenum=0;
+        switch (machineryState){
+            case "worn":
+                machineryStatenum=1.3;
+                break;
+
+            case "faulty":
+                machineryStatenum=2;
+                break;
+            case "critical":
+                machineryStatenum=3;
+
+        }
+        return ((1-armPrecision)*15)+(workerDensity*machineryStatenum);
+    }
     public static void main(String[] args){
         System.out.print("Factory Robot Hazard Analyzer");
         Scanner sc = new Scanner(System.in);
@@ -41,25 +57,13 @@ public class HazardAnalyzer {
             System.out.println("❌ Wrong input: Machinery State must be 'worn', 'faulty', or 'critical'.");
             return;
         }
-        double machineryStatenum=0;
-        switch (machineryState){
-            case "worn":
-                machineryStatenum=1.3;
-                break;
 
-            case "faulty":
-                machineryStatenum=2;
-                break;
-            case "critical":
-                machineryStatenum=3;
-
-        }
 
 
         System.out.println("Arm Precision: " + armPrecision);
         System.out.println("Worker Density: " + workerDensity);
         System.out.println("Machinery State: " + machineryState);
-        double hazardRisk=((1-armPrecision)*15)+(workerDensity*machineryStatenum);
+        double hazardRisk=HazardRiskCalculator(armPrecision,workerDensity,machineryState);
         System.out.println("Hazard Risk Score: " + hazardRisk);
     }
 }
