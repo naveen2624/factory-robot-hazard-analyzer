@@ -9,6 +9,29 @@ class RobotSafetyException extends Exception {
 
 public class HazardAnalyzer {
 
+    // Machinery risk constants (conceptually enum-like)
+    private static final double WORN_RISK = 1.3;
+    private static final double FAULTY_RISK = 2.0;
+    private static final double CRITICAL_RISK = 3.0;
+
+    // Machinery State → Risk Mapping (Business Rule Encapsulation)
+    public static double getMachineryRiskFactor(String machineryState)
+            throws RobotSafetyException {
+
+        switch (machineryState) { // Case-sensitive
+            case "Worn":
+                return WORN_RISK;
+            case "Faulty":
+                return FAULTY_RISK;
+            case "Critical":
+                return CRITICAL_RISK;
+            default:
+                throw new RobotSafetyException(
+                        "❌ Unsupported Machinery State. Allowed values: Worn, Faulty, Critical."
+                );
+        }
+    }
+
     public static double HazardRiskCalculator(
             double armPrecision,
             double workerDensity,
@@ -18,36 +41,21 @@ public class HazardAnalyzer {
         // Validate Arm Precision
         if (armPrecision < 0.0 || armPrecision > 1.0) {
             throw new RobotSafetyException(
-                    "Arm Precision must be between 0.0 and 1.0."
+                    "❌ Arm Precision must be between 0.0 and 1.0."
             );
         }
 
         // Validate Worker Density
         if (workerDensity < 1 || workerDensity > 20) {
             throw new RobotSafetyException(
-                    "Worker Density must be between 1 and 20."
+                    "❌ Worker Density must be between 1 and 20."
             );
         }
 
-        // Validate Machinery State
-        double machineryStateNum;
-        switch (machineryState) {
-            case "worn":
-                machineryStateNum = 1.3;
-                break;
-            case "faulty":
-                machineryStateNum = 2.0;
-                break;
-            case "critical":
-                machineryStateNum = 3.0;
-                break;
-            default:
-                throw new RobotSafetyException(
-                        "Machinery State must be 'worn', 'faulty', or 'critical'."
-                );
-        }
+        // Get machinery risk using mapping
+        double machineryRiskFactor = getMachineryRiskFactor(machineryState);
 
-        return ((1 - armPrecision) * 15) + (workerDensity * machineryStateNum);
+        return ((1 - armPrecision) * 15) + (workerDensity * machineryRiskFactor);
     }
 
     public static void main(String[] args) {
@@ -65,8 +73,8 @@ public class HazardAnalyzer {
 
             sc.nextLine(); // clear buffer
 
-            System.out.println("Enter Machinery State (worn / faulty / critical):");
-            String machineryState = sc.nextLine().toLowerCase();
+            System.out.println("Enter Machinery State (Worn / Faulty / Critical):");
+            String machineryState = sc.nextLine(); // Case-sensitive input
 
             double hazardRisk = HazardRiskCalculator(
                     armPrecision,
@@ -80,11 +88,10 @@ public class HazardAnalyzer {
             System.out.println("Hazard Risk Score: " + hazardRisk);
 
         } catch (RobotSafetyException e) {
-            // Exception message displayed by exception itself
             System.out.println(e.getMessage());
 
         } catch (Exception e) {
-            System.out.println("Invalid input type. Please enter correct values.");
+            System.out.println("❌ Invalid input type. Please enter correct values.");
         }
     }
 }
